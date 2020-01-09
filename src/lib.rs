@@ -244,16 +244,14 @@ pub struct CommandEncoder {
 
 /// An in-progress recording of a render pass.
 #[derive(Debug)]
-pub struct RenderPass<'a> {
+pub struct RenderPass {
     id: wgc::id::RenderPassId,
-    _parent: &'a mut CommandEncoder,
 }
 
 /// An in-progress recording of a compute pass.
 #[derive(Debug)]
-pub struct ComputePass<'a> {
+pub struct ComputePass {
     id: wgc::id::ComputePassId,
-    _parent: &'a mut CommandEncoder,
 }
 
 /// A handle to a command queue on a device.
@@ -1119,7 +1117,6 @@ impl CommandEncoder {
                         .unwrap_or(ptr::null()),
                 },
             ),
-            _parent: self,
         }
     }
 
@@ -1129,7 +1126,6 @@ impl CommandEncoder {
     pub fn begin_compute_pass(&mut self) -> ComputePass {
         ComputePass {
             id: wgn::wgpu_command_encoder_begin_compute_pass(self.id, None),
-            _parent: self,
         }
     }
 
@@ -1198,7 +1194,7 @@ impl CommandEncoder {
     }
 }
 
-impl<'a> RenderPass<'a> {
+impl RenderPass {
     /// Sets the active bind group for a given bind group index.
     pub fn set_bind_group(
         &mut self,
@@ -1328,7 +1324,7 @@ impl<'a> RenderPass<'a> {
     }
 }
 
-impl<'a> Drop for RenderPass<'a> {
+impl Drop for RenderPass {
     fn drop(&mut self) {
         if !thread::panicking() {
             wgn::wgpu_render_pass_end_pass(self.id);
@@ -1336,7 +1332,7 @@ impl<'a> Drop for RenderPass<'a> {
     }
 }
 
-impl<'a> ComputePass<'a> {
+impl ComputePass {
     /// Sets the active bind group for a given bind group index.
     pub fn set_bind_group(
         &mut self,
@@ -1371,7 +1367,7 @@ impl<'a> ComputePass<'a> {
     }
 }
 
-impl<'a> Drop for ComputePass<'a> {
+impl Drop for ComputePass {
     fn drop(&mut self) {
         if !thread::panicking() {
             wgn::wgpu_compute_pass_end_pass(self.id);
